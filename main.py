@@ -27,14 +27,8 @@ model = load_model(model_path)
 
 #Função para processar a imagem
 def process_image(uploaded_image):
-    # img = Image.open(uploaded_image)#.convert('RGB')
-    # img = img.resize((224,224))
-    # img_array = img_to_array(img)
-    # img_array = img_array / 255.0
-    # img_array = np.expand_dims(img_array, axis=0)
-
     img = Image.open(uploaded_image)#.convert('RGB')
-    img = image.resize((224, 224))
+    img = img.resize((224, 224))
     img_array = np.array(img)
     img_array = np.expand_dims(img_array, axis=0)
     img_array = preprocess_input(img_array)
@@ -53,7 +47,6 @@ if uploaded_image is not None:
     img_array = process_image(uploaded_image)
 
     
-
     # Realizar a predição
     prediction = model.predict(img_array)
     class_name = "Cat😺" if prediction <= 0.5 else "Dog🐶"
@@ -62,10 +55,5 @@ if uploaded_image is not None:
     # Exibir o resultado
     st.write(f"## Resultado: **{class_name}**")
     st.write(f"Confiança: **{confidence * 100:.2f}**")
-
-    st.write(f"## Teste ##")
     
-    label = "Cachorro 🐶" if prediction[0][0] >= 0.5 else "Gato 🐱"
-
-    st.write(f"### {label}")
     st.write(f"### {prediction[0][0]:.2f}%")
