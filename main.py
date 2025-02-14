@@ -13,6 +13,8 @@ import numpy as np
 
 # pip install streamlit pandas tensorflow numpy
 
+# streamlit run app.py
+
 # Congiguração da página
 st.set_page_config(page_title="Classificador de Cats e Dogs - com MobileNetV2", page_icon="😺🐶")
 
@@ -56,4 +58,4 @@ if uploaded_image is not None:
     st.write(f"## Resultado: **{class_name}**")
     st.write(f"Confiança: **{confidence * 100:.2f}**")
     
-    st.write(f"### {prediction[0][0]:.2f}%")
+    st.write(f"### prediction:**{prediction[0][0]:.2f}%**")

@@ -1,72 +1,60 @@
 
 # # Projeto Cats and Dogs.ipynb 
 # # Que estava no google Colab 
-# # talvez não esteja mais lá https://colab.research.google.com/drive/110ehTpsjB63QKmAItWId3RxV_zwWwRfS#scrollTo=NEr5oL5Xc6V5 
+# # talvez não esteja mais lá https://colab.research.google.com/drive/10Tl1sTwWFVBpmFiEzOlQuwMa-v9hnDf4
 
 
 
-
-# # Baixa as imagens
-# !wget https://download.microsoft.com/download/3/E/1/3E1C3F21-ECDB-4869-8368-6DEBA77B919F/kagglecatsanddogs_5340.zip
-
-# # dezipa em data
-# !unzip kagglecatsanddogs_5340.zip -d /content/data
-
-    
-# # -----------------------------------------------------------------------------
-
-
-# #imports
-# import pandas as pd
-# from sklearn.model_selection import train_test_split
-# from PIL import Image
-# import numpy as np
-# import shutil
 
 # import os
-# import shutil
-# import random
-# #from sklearn.model_selection import train_test_split
+# !wget https://download.microsoft.com/download/3/E/1/3E1C3F21-ECDB-4869-8368-6DEBA77B919F/kagglecatsanddogs_5340.zip -O dataset.zip
 
-# import tensorflow as tf
-# from tensorflow.keras import layers, models
-# from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
-
-# # caminho para as pastas
-
-# # caminho_imagens_processadas = "/content/data/imagens_processadas"
-# # caminho_imagens_processadas_cat = "/content/data/imagens_processadas/Cat"
-# # caminho_imagens_processadas_dog = "/content/data/imagens_processadas/Dog"
-# caminho_train = "/content/data/train"
-# caminho_test = "/content/data/test"
-
-# # verefica se o caminho_imagens_processadas
-# # if not os.path.exists(caminho_imagens_processadas):
-# #     os.makedirs(caminho_imagens_processadas)
-
-# def is_image(filename):
-#     try:
-#         Image.open(filename).verify()
-#         return True
-#     except:
-#         return False
-    
-    
     
 # # -----------------------------------------------------------------------------
+# !unzip -q dataset.zip
+# !ls
+
+# # -----------------------------------------------------------------------------
+
+# # # dezipa em data
+# # !unzip archive.zip -d /content/data
+
+# num_skipped = 0
+# for folder_name in ("Cat", "Dog"):
+#   folder_path = os.path.join("PetImages", folder_name)
+#   for fname in os.listdir(folder_path):
+#     fpath = os.path.join(folder_path, fname)
+#     try:
+#       fobj = open(fpath, "rb")
+#       is_jfif = b"JFIF" in fobj.peek(10)
+#     finally:
+#       fobj.close()
+
+#     if not is_jfif:
+#       num_skipped += 1
+#       os.remove(fpath)
+# print("Deleted images: {}".format(str(num_skipped)))
+
+# # -----------------------------------------------------------------------------
+
+# import tensorflow as tf
+# from tensorflow.keras.preprocessing import image_dataset_from_directory
+
+# from tensorflow.keras.applications import MobileNetV2
+# from tensorflow.keras import layers, models
 
 
-# # import os
-# # import shutil
-# # import random
-# # from sklearn.model_selection import train_test_split
+# import numpy as np
+# from PIL import Image
 
+# from sklearn.model_selection import train_test_split
+# import shutil
+# import random
 
-# caminho_processadas_cat = "/content/data/PetImages/Cat"
-# caminho_processadas_dog = "/content/data/PetImages/Dog"
+# # -----------------------------------------------------------------------------
+
+# caminho_processadas_cat = "/content/PetImages/Cat"
+# caminho_processadas_dog = "/content/PetImages/Dog"
 # caminho_train = "/content/data/train"
 # caminho_test = "/content/data/test"
 
@@ -76,6 +64,13 @@
 # os.makedirs(os.path.join(caminho_test, 'Cat'), exist_ok= True)
 # os.makedirs(os.path.join(caminho_test, 'Dog'), exist_ok= True)
 
+# # -----------------------------------------------------------------------------
+# def is_image(filename):
+#     try:
+#         Image.open(filename).verify()
+#         return True
+#     except:
+#         return False
 
 # # Verifica se a imagem é uma imagem, retorna o tipo da imagem  cat ou dog
 # def listar_imagens_tipo():
@@ -94,13 +89,7 @@
 #             imagens_tipo.append((imagens_path, 'Dog'))
 
 #     return imagens_tipo
-
-
-    
-# # -----------------------------------------------------------------------------
-
-
-# # divide as imagens em treino e teste
+#   # divide as imagens em treino e teste
 # def dividir_imagens(imagens_tipo,slit_radio=0.8):
 #     imagens_path, labels = zip(*imagens_tipo)
 
@@ -119,89 +108,62 @@
 #         shutil.move(imagens_path, destino)
 #       else:
 #         print(f"A imagem {imagens_path} não existe.")
-
-    
+#     print("Imagens dividas as imagens em treino e teste")
 # # -----------------------------------------------------------------------------
 
 # imagens_tipo = listar_imagens_tipo()
-# dividir_imagens(imagens_tipo)
-
-    
 # # -----------------------------------------------------------------------------
 
-# # import tensorflow as tf
-# # from tensorflow.keras import layers, models
-# # from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
-
+# dividir_imagens(imagens_tipo)
+# # -----------------------------------------------------------------------------
 # train_dir = '/content/data/train'
 # test_dir = '/content/data/test'
 
-# barch_size = 32
-# img_height = 128
-# img_width = 128
+# # -----------------------------------------------------------------------------
+# # Configuração de parâmetros
+# BATCH_SIZE = 32
+# IMG_SIZE = (224, 224)
 
-# train_datagen = ImageDataGenerator(rescale=1./255)
-# test_datagen = ImageDataGenerator(rescale=1./255)
 
-# train_generator = train_datagen.flow_from_directory(
+# train_dataset = image_dataset_from_directory(
 #     train_dir,
-#     target_size=(img_height, img_width),
-#     batch_size=barch_size,
-#     class_mode='binary'
+#     validation_split=0.2,
+#     subset="training",
+#     seed=123,
+#     image_size=IMG_SIZE,
+#     batch_size=BATCH_SIZE
 # )
 
-# test_generator = test_datagen.flow_from_directory(
+# val_dataset = image_dataset_from_directory(
 #     test_dir,
-#     target_size=(img_height, img_width),
-#     batch_size=barch_size,
-#     class_mode='binary'
+#     validation_split=0.2,
+#     subset="validation",
+#     seed=123,
+#     image_size=IMG_SIZE,
+#     batch_size=BATCH_SIZE
 # )
-    
 # # -----------------------------------------------------------------------------
 
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+# from tensorflow.keras.applications import MobileNetV2
+# from tensorflow.keras import layers, models
 
+# # Construção do modelo com Transfer Learning
+# base_model = MobileNetV2(weights="imagenet", include_top=False, input_shape=(224, 224, 3))
+# base_model.trainable = False # Congela os pesos do modelo pré-treinado
 
-# # Construir o modelo de CNN // o que é CNN    é a rede neurtal?
-# model = Sequential()
+# model = models.Sequential([
+#     base_model,
+#     layers.GlobalAveragePooling2D(),
+#     layers.Dense(128, activation="relu"),
+#     layers.Dropout(0.5),
+#     layers.Dense(1, activation="sigmoid") # Saída binária (0 = gato, 1 = cachorro)
+# ])
 
-# #Camada de entrada de convolução e ReLU
-# model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(img_height, img_width, 3))) #1
-# model.add(MaxPooling2D((2, 2)))
+# model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
 
-# #Camada de entrada de convolução e pooling
-# model.add(Conv2D(64, (3, 3), activation='relu'))
-# model.add(MaxPooling2D((2, 2)))
-
-# model.add(Conv2D(128, (3, 3), activation='relu'))
-# model.add(MaxPooling2D((2, 2)))
-
-# #Vamada Flatten para converter 2D em Vetor
-# model.add(layers.Flatten())
-
-# #Camada densa com ReLU
-# model.add(layers.Dense(64, activation='relu'))
-
-# #Camada de saída com ativação sigmoid
-# model.add(layers.Dense(1, activation='sigmoid'))
-
-# #Compilação do modelo
-# model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-
-# #Treinamneto do modelo
-# history = model.fit(train_generator, steps_per_epoch = train_generator.samples // barch_size,
-#                     epochs=10, #10
-#                     validation_data=test_generator,
-#                     validation_steps=test_generator.samples // barch_size)
-
-# model.save('/content/pets/modelo_CatsAndDogs.h5')
-
-
-    
+# # Treinamento do modelo
+# model.fit(train_dataset, validation_data=val_dataset, epochs=5)
 # # -----------------------------------------------------------------------------
-
-# # Avaliar o modelo
-# # test_loss, test_accuracy = model.evaluate(X_test, y_test, verbose=0)
-# # print(f"Test Accuracy: {test_accuracy:.2f}")
+# # Salvar modelo treinado
+# model.save("modelo_CatsAndDogs_mobilenetv2.h5")
+# # -----------------------------------------------------------------------------
